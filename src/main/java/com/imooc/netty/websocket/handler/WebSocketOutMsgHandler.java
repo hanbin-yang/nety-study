@@ -13,7 +13,7 @@ public class WebSocketOutMsgHandler extends ChannelOutboundHandlerAdapter {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        System.out.println("haha out");
+        System.out.println("发送数据， msg=" + msg);
         super.write(ctx, msg, promise);
     }
 }

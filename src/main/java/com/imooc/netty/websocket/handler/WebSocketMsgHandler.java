@@ -23,6 +23,7 @@ public class WebSocketMsgHandler extends SimpleChannelInboundHandler<TextWebSock
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame textWebSocketFrame) throws Exception {
         //消息字符串
         String msg = textWebSocketFrame.text();
-        ctx.write("hello" + msg);
+        System.out.println("接收到数据，msg = " + msg);
+        ctx.write("hello, " + msg);
     }
 }
