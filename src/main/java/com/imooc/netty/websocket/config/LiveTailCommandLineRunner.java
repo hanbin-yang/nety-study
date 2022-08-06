@@ -7,9 +7,14 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
@@ -38,13 +43,21 @@ public class LiveTailCommandLineRunner implements CommandLineRunner {
     @Value("${live-tail.port:8888}")
     private int port;
 
+    @Value("${netty.epoll.enable:false}")
+    private boolean epollEnable;
+
+    @Value("${os.name:}")
+    private String osName;
+
     @Override
     public void run(String... args) throws Exception {
         NioEventLoopGroup parentGroup = new NioEventLoopGroup();
         NioEventLoopGroup childGroup = new NioEventLoopGroup();
         ServerBootstrap serverBootstrap = new ServerBootstrap();
+
+        Class<? extends ServerSocketChannel> serverSocketChannel = shouldEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
         serverBootstrap.group(parentGroup, childGroup)
-                .channel(NioServerSocketChannel.class)
+                .channel(serverSocketChannel)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -62,5 +75,12 @@ public class LiveTailCommandLineRunner implements CommandLineRunner {
                     }
                 });
         serverBootstrap.bind(port).sync();
+    }
+
+    private boolean shouldEpoll() {
+        if (epollEnable) {
+            return osName.toLowerCase().contains("linux") && Epoll.isAvailable();
+        }
+        return false;
     }
 }

@@ -1,7 +1,7 @@
 server:
   servlet:
     context-path: /liveTail
-
+  port: 8088
 live-tail:
   port: 8888
   ssl:
