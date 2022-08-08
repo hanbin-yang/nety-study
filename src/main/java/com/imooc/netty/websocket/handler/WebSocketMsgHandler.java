@@ -24,6 +24,6 @@ public class WebSocketMsgHandler extends SimpleChannelInboundHandler<TextWebSock
         //消息字符串
         String msg = textWebSocketFrame.text();
         System.out.println("接收到数据，msg = " + msg);
-        ctx.write("hello, " + msg);
+        ctx.writeAndFlush("hello, " + msg);
     }
 }

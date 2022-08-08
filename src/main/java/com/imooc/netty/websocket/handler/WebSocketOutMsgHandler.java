@@ -17,7 +17,8 @@ public class WebSocketOutMsgHandler extends ChannelOutboundHandlerAdapter {
         System.out.println("发送数据， msg=" + msg);
         if (msg instanceof String) {
             super.write(ctx, new TextWebSocketFrame("return message: " + msg), promise);
+        } else {
+            super.write(ctx, msg, promise);
         }
-        super.write(ctx, msg, promise);
     }
 }
